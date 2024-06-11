@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.0.0"
+    application
 }
 
 group = "net.nprod.nap"
@@ -18,9 +19,14 @@ dependencies {
 
 }
 
+application {
+    mainClass.set("net.nprod.nap.updater.D20240609_species")
+}
+
 tasks.test {
     useJUnitPlatform()
 }
+
 kotlin {
     jvmToolchain(21)
 }

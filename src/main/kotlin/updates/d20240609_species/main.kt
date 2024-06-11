@@ -1,3 +1,5 @@
+package net.nprod.nap.updater
+
 import org.apache.jena.query.*
 import org.apache.jena.sparql.core.Transactional
 import org.apache.jena.tdb2.TDB2Factory
