@@ -80,6 +80,14 @@ object D20240609_species {
                     ?taxon ?p ?o.
                     OPTIONAL { ?organism n:taxon ?taxon. }
                 }
+            """.trimIndent(), """
+                PREFIX n: <https://nap.nprod.net/>
+                DELETE {
+                    ?s n:has_taxon ?o.
+                }
+                WHERE {
+                    ?s n:has_taxon ?o.
+                }
             """.trimIndent())
 
             undoQueries.forEach { undoQuery ->
@@ -87,7 +95,8 @@ object D20240609_species {
                 val qExec = UpdateExecutionFactory.create(arqQuery, dataset)
                 qExec.execute()
             }
-        }*/
+        }
+         */
 
         dataset.executeRead<Transactional> {
             val updateCheckQuery = """
@@ -190,7 +199,7 @@ object D20240609_species {
             }
 
 
-            val taxa = listOf(familyTaxa, genusTaxa, speciesTaxa, subspeciesTaxa).filterNotNull()
+            val taxa = listOfNotNull(familyTaxa, genusTaxa, speciesTaxa, subspeciesTaxa)
             if (taxa.isNotEmpty()) {
                 taxaToOriginalOrganisms[taxa.last()] = organismMap[organism]!!
             }
@@ -204,8 +213,10 @@ object D20240609_species {
 
         dataset.executeWrite {
             val model = dataset.defaultModel
-            taxaSet.forEach { taxa ->
+            val taxon = model.createResource("https://nap.nprod.net/taxon")
+            taxaToOriginalOrganisms.forEach { (taxa, organisms) ->
                 val resource = model.createResource("https://nap.nprod.net/taxon/${taxa.newId}")
+                resource.addProperty(RDF.type, taxon)
                 resource.addProperty(model.createProperty("https://nap.nprod.net/name"), model.createLiteral(taxa.name))
                 resource.addProperty(RDF.type, model.createResource("https://nap.nprod.net/taxon"))
                 resource.addProperty(
@@ -219,9 +230,9 @@ object D20240609_species {
                     )
                 }
                 // Now for each of the organisms, we need to link them to the taxa
-                taxaToOriginalOrganisms[taxa]?.forEach { organismUri ->
+                organisms.forEach { organismUri ->
                     model.createResource(organismUri)
-                        .addProperty(model.createProperty("https://nap.nprod.net/taxon"), resource)
+                        .addProperty(model.createProperty("https://nap.nprod.net/has_taxon"), resource)
                 }
             }
             val update = model.createResource("https://nap.nprod.net/update/20240609_species")
