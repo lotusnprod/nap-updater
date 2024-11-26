@@ -59,7 +59,7 @@ object D20240609_species {
         // DO NOT UNDO ONCE IT IS PUBLIC OR YOU WILL MESS UP THE IDs
         //
 
-        /*dataset.executeWrite {
+        dataset.executeWrite {
             // A sparql query that would undo all of this
             val undoQueries = listOf("""
                 PREFIX n: <https://nap.nprod.net/>
@@ -98,7 +98,6 @@ object D20240609_species {
                 qExec.execute()
             }
         }
-         */
 
         dataset.executeRead<Transactional> {
             val updateCheckQuery = """
